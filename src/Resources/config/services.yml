@@ -99,5 +99,7 @@ services:
     # Controller
     Mailjet\MailjetBundle\Controller\EventController:
         public: true
+        arguments:
+            - '@event_dispatcher'
         calls:
             - [ setContainer, [ '@service_container' ] ]

@@ -1,4 +1,5 @@
 <?php
+
 namespace Mailjet\MailjetBundle\Controller;
 
 use Symfony\Component\Routing\Annotation\Route;
@@ -22,6 +23,12 @@ use Mailjet\MailjetBundle\Event\CallbackEvent;
  */
 class EventController extends AbstractController
 {
+    protected EventDispatcherInterface $dispatcher;
+
+    public function __construct(EventDispatcherInterface $dispatcher)
+    {
+        $this->dispatcher = $dispatcher;
+    }
 
     /**
      * Endpoint for the mailjet events (webhooks)
@@ -92,7 +99,7 @@ class EventController extends AbstractController
     public function getDispatcher()
     {
         // NOTE: use a better dispatcher such as rabbitMQ if you have a huge amount of events
-        return $this->get('event_dispatcher');
+        return $this->dispatcher;
     }
 
     /**
