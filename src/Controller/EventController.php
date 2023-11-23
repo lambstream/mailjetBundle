@@ -126,6 +126,6 @@ class EventController extends AbstractController
      */
     private function getToken()
     {
-        return $this->container->getParameter('mailjet.event_endpoint_token');
+        return $this->getParameter('mailjet.event_endpoint_token');
     }
 }
