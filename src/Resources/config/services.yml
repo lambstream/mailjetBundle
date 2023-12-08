@@ -103,3 +103,4 @@ services:
             - '@event_dispatcher'
         calls:
             - [ setContainer, [ '@service_container' ] ]
+         tags: ['controller.service_arguments']
