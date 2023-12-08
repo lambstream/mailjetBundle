@@ -3,7 +3,6 @@
 namespace spec\Mailjet\MailjetBundle\Controller;
 
 use PhpSpec\ObjectBehavior;
-use Prophecy\Argument;
 
 use Symfony\Component\HttpKernel\Exception\BadRequestHttpException;
 use Symfony\Component\HttpFoundation\Request;
@@ -16,40 +15,34 @@ use Mailjet\MailjetBundle\Event\CallbackEvent;
 class EventControllerSpec extends ObjectBehavior
 {
 
-    /**
-     * @param \Symfony\Component\DependencyInjection\ContainerInterface $container
-     */
-    function let(ContainerInterface $container)
+    function it_is_initializable(ContainerInterface $container, EventDispatcherInterface $eventDispatcher)
     {
+        $this->beConstructedWith($eventDispatcher, 'TOKEN');
         $this->setContainer($container);
-    }
-
-    function it_is_initializable()
-    {
         $this->shouldHaveType('Mailjet\MailjetBundle\Controller\EventController');
         $this->shouldHaveType('Symfony\Bundle\FrameworkBundle\Controller\AbstractController');
 
     }
 
-    function it_bad_request_exception_if_token_mismatch(ContainerInterface $container)
+    function it_bad_request_exception_if_token_mismatch(ContainerInterface $container, EventDispatcherInterface $eventDispatcher)
     {
+        $this->beConstructedWith($eventDispatcher, 'TOKEN');
+        $this->setContainer($container);
         $request = new Request();
         $request->create('/mailjet/mailjet-event/endpoint/12345678', 'POST');
         $request->setMethod('POST');
-
-        $container->getParameter('mailjet.event_endpoint_token')->shouldBeCalled()->willReturn('NOWAY');
 
         $this->shouldThrow(new BadRequestHttpException('Token mismatch'))
             ->duringIndexAction($request, '12345678');
     }
 
-    function it_bad_request_exception_if_no_data(ContainerInterface $container)
+    function it_bad_request_exception_if_no_data(ContainerInterface $container, EventDispatcherInterface $eventDispatcher)
     {
+        $this->beConstructedWith($eventDispatcher, '12345678');
+        $this->setContainer($container);
         $request = new Request();
         $request->create('/mailjet/mailjet-event/endpoint/12345678', 'POST');
         $request->setMethod('POST');
-
-        $container->getParameter('mailjet.event_endpoint_token')->shouldBeCalled()->willReturn('12345678');
 
         $this->shouldThrow(new BadRequestHttpException('Malformatted or missing data'))
             ->duringIndexAction($request, '12345678');
@@ -57,6 +50,9 @@ class EventControllerSpec extends ObjectBehavior
 
     function it_pass_with_simple_payload(ContainerInterface $container, EventDispatcherInterface $eventDispatcher)
     {
+        $this->beConstructedWith($eventDispatcher, '12345678');
+        $this->setContainer($container);
+
         $data = '{
            "event": "unsub",
            "time": 1433334941,
@@ -75,9 +71,6 @@ class EventControllerSpec extends ObjectBehavior
         $request = new Request();
         $request->initialize([], [], [], [], [], [], $data);
 
-        $container->getParameter('mailjet.event_endpoint_token')->shouldBeCalled()->willReturn('12345678');
-        $container->get('event_dispatcher')->shouldBeCalled()->willReturn($eventDispatcher);
-
         $eventDispatcher->dispatch(new CallbackEvent(json_decode($data, true)), CallbackEvent::EVENT_UNSUB)->shouldBeCalled();
 
         $this->indexAction($request, '12345678');
@@ -85,6 +78,9 @@ class EventControllerSpec extends ObjectBehavior
 
     function it_pass_with_grouped_payload(ContainerInterface $container, EventDispatcherInterface $eventDispatcher)
     {
+        $this->beConstructedWith($eventDispatcher, '12345678');
+        $this->setContainer($container);
+
         $data = '[
            {
               "event": "sent",
@@ -116,9 +112,6 @@ class EventControllerSpec extends ObjectBehavior
         $request = new Request();
         $request->initialize([], [], [], [], [], [], $data);
 
-        $container->getParameter('mailjet.event_endpoint_token')->shouldBeCalled()->willReturn('12345678');
-        $container->get('event_dispatcher')->shouldBeCalled()->willReturn($eventDispatcher);
-
         $eventDispatcher->dispatch(new CallbackEvent(json_decode($data, true)[0]), CallbackEvent::EVENT_SENT)->shouldBeCalled();
         $eventDispatcher->dispatch(new CallbackEvent(json_decode($data, true)[1]),CallbackEvent::EVENT_SENT)->shouldBeCalled();
 
@@ -127,6 +120,9 @@ class EventControllerSpec extends ObjectBehavior
 
     function it_throw_exception_if_bad_eventtype(ContainerInterface $container, EventDispatcherInterface $eventDispatcher)
     {
+        $this->beConstructedWith($eventDispatcher, '12345678');
+        $this->setContainer($container);
+
         $data = '{
            "event": "sqdfkjsqdkjqsndkqsj",
            "time": 1433334941,
@@ -145,15 +141,15 @@ class EventControllerSpec extends ObjectBehavior
         $request = new Request();
         $request->initialize([], [], [], [], [], [], $data);
 
-        $container->getParameter('mailjet.event_endpoint_token')->shouldBeCalled()->willReturn('12345678');
-        $container->get('event_dispatcher')->shouldBeCalled()->willReturn($eventDispatcher);
-
         $this->shouldThrow(new BadRequestHttpException('Type mismatch'))
             ->duringIndexAction($request, '12345678');
     }
 
     function it_test_all_event_type(ContainerInterface $container, EventDispatcherInterface $eventDispatcher)
     {
+        $this->beConstructedWith($eventDispatcher, '12345678');
+        $this->setContainer($container);
+
         $data = '[
            {
               "event": "sent",
@@ -248,9 +244,6 @@ class EventControllerSpec extends ObjectBehavior
         ]';
         $request = new Request();
         $request->initialize([], [], [], [], [], [], $data);
-
-        $container->getParameter('mailjet.event_endpoint_token')->shouldBeCalled()->willReturn('12345678');
-        $container->get('event_dispatcher')->shouldBeCalled()->willReturn($eventDispatcher);
 
         $eventDispatcher->dispatch(new CallbackEvent(json_decode($data, true)[0]), CallbackEvent::EVENT_SENT)->shouldBeCalled();
         $eventDispatcher->dispatch(new CallbackEvent(json_decode($data, true)[1]), CallbackEvent::EVENT_OPEN)->shouldBeCalled();
