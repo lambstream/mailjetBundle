@@ -25,9 +25,12 @@ class EventController extends AbstractController
 {
     protected EventDispatcherInterface $dispatcher;
 
-    public function __construct(EventDispatcherInterface $dispatcher)
+    private string $eventEndpointToken;
+
+    public function __construct(EventDispatcherInterface $dispatcher, string $eventEndpointToken)
     {
         $this->dispatcher = $dispatcher;
+        $this->eventEndpointToken = $eventEndpointToken;
     }
 
     /**
@@ -126,6 +129,6 @@ class EventController extends AbstractController
      */
     private function getToken()
     {
-        return $this->getParameter('mailjet.event_endpoint_token');
+        return $this->eventEndpointToken;
     }
 }

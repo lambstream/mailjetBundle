@@ -101,6 +101,6 @@ services:
         public: true
         arguments:
             - '@event_dispatcher'
+            - '%mailjet.event_endpoint_token%'
         calls:
             - [ setContainer, [ '@service_container' ] ]
-        tags: ['controller.service_arguments']
