@@ -1,4 +1,5 @@
 <?php
+
 namespace Mailjet\MailjetBundle\Command;
 
 use Mailjet\MailjetBundle\Manager\EventCallbackUrlManager;
@@ -8,9 +9,33 @@ use Symfony\Component\Console\Input\InputArgument;
 use Symfony\Component\Console\Input\InputOption;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Output\OutputInterface;
+use Symfony\Component\DependencyInjection\Attribute\Autowire;
+use Symfony\Component\Routing\RouterInterface;
 
 class EventCommand extends Command
 {
+    private EventCallbackUrlManager $callbackUrlManager;
+
+    private RouterInterface $router;
+
+    private string $eventEndpointRoute;
+
+    private string $endpointToken;
+
+
+    public function __construct(
+        EventCallbackUrlManager $callbackUrlManager,
+        RouterInterface $router,
+        string $eventEndpointRoute,
+        string $endpointToken,
+    ) {
+        $this->callbackUrlManager = $callbackUrlManager;
+        $this->router = $router;
+        $this->eventEndpointRoute = $eventEndpointRoute;
+        $this->endpointToken = $endpointToken;
+        parent::__construct();
+    }
+
     protected function configure()
     {
         $this
@@ -23,26 +48,20 @@ class EventCommand extends Command
                 InputOption::VALUE_OPTIONAL | InputOption::VALUE_IS_ARRAY,
                 'List of eventType: ["sent", "open", "click", "bounce", "blocked", "spam", "unsub"], all by default',
                 null
-            )
-        ;
+            );
     }
 
     /**
-     * @param InputInterface $input
+     * @param InputInterface  $input
      * @param OutputInterface $output
      */
     protected function execute(InputInterface $input, OutputInterface $output)
     {
         $domain = $input->getArgument('baseurl');
-        $uri = $this->getRouter()->generate($this->getRouteName(), array(
-            'token' => $this->getToken()
-        ));
+        $uri = $this->router->generate($this->eventEndpointRoute, [
+            'token' => $this->endpointToken,
+        ]);
         $url = sprintf('%s/%s', rtrim($domain, '/'), ltrim($uri, '/'));
-
-        /**
-         * @var EventCallbackUrlManager $manager
-         */
-        $manager = $this->getContainer()->get('mailjet.service.event_callback_manager');
 
         if ($input->getOption('event-type')) {
             $eventTypes = $input->getOption('event-type');
@@ -54,39 +73,15 @@ class EventCommand extends Command
             $eventCallBackUrl = new EventCallbackUrl($url, $eventType, true);
 
             try {
-                $manager->get($eventType);
-                $output->writeln('update '.$eventType);
-                $manager->update($eventType, $eventCallBackUrl);
+                $this->callbackUrlManager->get($eventType);
+                $output->writeln('update ' . $eventType);
+                $this->callbackUrlManager->update($eventType, $eventCallBackUrl);
             } catch (\Exception $e) {
-                $output->writeln('create '.$eventType);
-                $manager->create($eventCallBackUrl);
+                $output->writeln('create ' . $eventType);
+                $this->callbackUrlManager->create($eventCallBackUrl);
             }
         }
 
         $output->writeln(sprintf('<info>%s callback url has been added to your Mailjet account!</info>', $url));
-    }
-
-    /**
-     * @return \Symfony\Component\Routing\RouterInterface
-     */
-    protected function getRouter()
-    {
-        return $this->getContainer()->get('router');
-    }
-
-    /**
-     * @return string
-     */
-    protected function getRouteName()
-    {
-        return $this->getContainer()->getParameter('mailjet.event_endpoint_route');
-    }
-
-    /**
-     * @return string
-     */
-    protected function getToken()
-    {
-        return $this->getContainer()->getParameter('mailjet.event_endpoint_token');
     }
 }

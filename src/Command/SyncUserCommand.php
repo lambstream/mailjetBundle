@@ -2,16 +2,15 @@
 
 namespace Mailjet\MailjetBundle\Command;
 
-use Mailjet\MailjetBundle\Synchronizer\ContactsListSynchronizer;
-use Symfony\Component\Console\Command\Command;
-use Symfony\Component\Console\Input\InputArgument;
-use Symfony\Component\Console\Input\InputOption;
-use Symfony\Component\Console\Input\InputInterface;
-use Symfony\Component\Console\Output\OutputInterface;
-use Symfony\Component\DependencyInjection\Exception\ServiceNotFoundException;
-
 use Mailjet\MailjetBundle\Model\ContactsList;
 use Mailjet\MailjetBundle\Provider\ProviderInterface;
+use Mailjet\MailjetBundle\Synchronizer\ContactsListSynchronizer;
+use Symfony\Component\Console\Command\Command;
+use Symfony\Component\Console\Input\InputInterface;
+use Symfony\Component\Console\Input\InputOption;
+use Symfony\Component\Console\Output\OutputInterface;
+use Symfony\Component\DependencyInjection\Container;
+use Symfony\Component\DependencyInjection\Exception\ServiceNotFoundException;
 
 /**
  * Class SyncUserCommand
@@ -20,16 +19,23 @@ use Mailjet\MailjetBundle\Provider\ProviderInterface;
  */
 class SyncUserCommand extends Command
 {
+    private array $lists = [];
 
-    /**
-     * @var array
-     */
-    private $lists;
+    private ContactsListSynchronizer $synchronizer;
 
-    /**
-     * @var ContactsListSynchronizer
-     */
-    private $synchronizer;
+    private Container $serviceContainer;
+
+    public function __construct(
+        array $lists,
+        ContactsListSynchronizer $synchronizer,
+        Container $serviceContainer,
+    ) {
+        $this->lists = $lists;
+        $this->synchronizer = $synchronizer;
+        $this->serviceContainer = $serviceContainer;
+
+        parent::__construct();
+    }
 
     /**
      * {@inheritDoc}
@@ -45,18 +51,15 @@ class SyncUserCommand extends Command
                 InputOption::VALUE_NONE,
                 'If you want to follow batches execution'
             );
-            // @TODO add params : listId, providerServiceKey
+        // @TODO add params : listId, providerServiceKey
     }
 
     /**
-    * {@inheritDoc}
-    */
+     * {@inheritDoc}
+     */
     protected function initialize(InputInterface $input, OutputInterface $output)
     {
         $output->writeln(sprintf('<info>%s</info>', $this->getDescription()));
-
-        $this->lists = $this->getContainer()->getParameter('mailjet.lists');
-        $this->synchronizer = $this->getContainer()->get('mailjet.service.contacts_list_synchronizer');
     }
 
     /**
@@ -96,27 +99,32 @@ class SyncUserCommand extends Command
 
     /**
      * Get contact provider
+     *
      * @param string $providerServiceKey
+     *
      * @return ProviderInterface $provider
      */
     private function getProvider($providerServiceKey)
     {
         try {
-            $provider = $this->getContainer()->get($providerServiceKey);
+            $provider = $this->serviceContainer->get($providerServiceKey);
         } catch (ServiceNotFoundException $e) {
             throw new \InvalidArgumentException(sprintf('Provider "%s" should be defined as a service.', $providerServiceKey), $e->getCode(), $e);
         }
         if (!$provider instanceof ProviderInterface) {
             throw new \InvalidArgumentException(sprintf('Provider "%s" should implement Mailjet\MailjetBundle\Provider\ProviderInterface.', $providerServiceKey));
         }
+
         return $provider;
     }
 
     /**
      * Refresh all batch from Mailjet API
+     *
      * @param string $listId
-     * @param array $batchesResult
+     * @param array  $batchesResult
      * @param &array $batchesError
+     *
      * @return array
      */
     private function refreshBatchesResult($listId, $batchesResult, &$batchesError)
@@ -132,12 +140,15 @@ class SyncUserCommand extends Command
                 array_push($refreshedBatchsResults, array_merge(['JobID' => $jobId], $batch[0]));
             }
         }
+
         return $refreshedBatchsResults;
     }
 
     /**
      * Test if all batches are finished
+     *
      * @param array $batchesResult
+     *
      * @return bool
      */
     private function batchesFinished($batchesResult)
@@ -148,11 +159,15 @@ class SyncUserCommand extends Command
                 $allfinished = false;
             }
         }
+
         return $allfinished;
     }
+
     /**
      * Pretty display of batch info
+     *
      * @param array $batch
+     *
      * @return string
      */
     private function displayBatchInfo($batch)
@@ -166,7 +181,9 @@ class SyncUserCommand extends Command
 
     /**
      * Print Batches Errors
-     * @param  array $batchesError
+     *
+     * @param array $batchesError
+     *
      * @return array
      */
     private function displayBatchesErrorFile($batchesError)
@@ -174,7 +191,7 @@ class SyncUserCommand extends Command
         $output = [];
         foreach ($batchesError as $key => $batch) {
             $errors = $this->synchronizer->getJobJsonError($batch['JobID']);
-            array_push($output, '<error><pre>'.print_r($errors).'</pre></error>');
+            array_push($output, '<error><pre>' . print_r($errors) . '</pre></error>');
         }
 
         return $output;

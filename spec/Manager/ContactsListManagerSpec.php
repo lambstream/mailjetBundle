@@ -28,13 +28,13 @@ class ContactsListManagerSpec extends ObjectBehavior
         $contact->setAction(Contact::ACTION_ADDFORCE);
 
         $response->success()->shouldBeCalled()->willReturn(true);
-        $response->getData()->shouldBeCalled()->willReturn('successdata!');
+        $response->getData()->shouldBeCalled()->willReturn(['successdata!']);
 
         $mailjet->post(Resources::$ContactslistManagecontact,
             ['id' => 'list01', 'body' => $contact->format()]
         )->shouldBeCalled()->willReturn($response);
 
-        $this->create('list01', $contact)->shouldReturn('successdata!');
+        $this->create('list01', $contact)->shouldReturn(['successdata!']);
     }
 
     public function it_throw_error_during_create(MailjetClient $mailjet, \Mailjet\Response $response)
@@ -45,7 +45,7 @@ class ContactsListManagerSpec extends ObjectBehavior
         $response->success()->shouldBeCalled()->willReturn(false);
         $response->getStatus()->shouldBeCalled()->willReturn(500);
         $response->getReasonPhrase()->shouldBeCalled()->willReturn('test');
-        $response->getBody()->shouldBeCalled()->willReturn(null);
+        $response->getBody()->shouldBeCalled()->willReturn([]);
 
         $mailjet->post(Resources::$ContactslistManagecontact,
             ['id' => 'list01', 'body' => $contact->format()]
@@ -62,13 +62,13 @@ class ContactsListManagerSpec extends ObjectBehavior
         $contact->setAction(Contact::ACTION_ADDNOFORCE);
 
         $response->success()->shouldBeCalled()->willReturn(true);
-        $response->getData()->shouldBeCalled()->willReturn('successdata!');
+        $response->getData()->shouldBeCalled()->willReturn(['successdata!']);
 
         $mailjet->post(Resources::$ContactslistManagecontact,
             ['id' => 'list01', 'body' => $contact->format()]
         )->shouldBeCalled()->willReturn($response);
 
-        $this->update('list01', $contact)->shouldReturn('successdata!');
+        $this->update('list01', $contact)->shouldReturn(['successdata!']);
     }
 
     public function it_subscribe(MailjetClient $mailjet, \Mailjet\Response $response)
@@ -77,13 +77,13 @@ class ContactsListManagerSpec extends ObjectBehavior
         $contact->setAction(Contact::ACTION_ADDFORCE);
 
         $response->success()->shouldBeCalled()->willReturn(true);
-        $response->getData()->shouldBeCalled()->willReturn('successdata!');
+        $response->getData()->shouldBeCalled()->willReturn(['successdata!']);
 
         $mailjet->post(Resources::$ContactslistManagecontact,
             ['id' => 'list01', 'body' => $contact->format()]
         )->shouldBeCalled()->willReturn($response);
 
-        $this->subscribe('list01', $contact)->shouldReturn('successdata!');
+        $this->subscribe('list01', $contact)->shouldReturn(['successdata!']);
     }
 
     public function it_unsubscribe(MailjetClient $mailjet, \Mailjet\Response $response)
@@ -92,13 +92,13 @@ class ContactsListManagerSpec extends ObjectBehavior
         $contact->setAction(Contact::ACTION_UNSUB);
 
         $response->success()->shouldBeCalled()->willReturn(true);
-        $response->getData()->shouldBeCalled()->willReturn('successdata!');
+        $response->getData()->shouldBeCalled()->willReturn(['successdata!']);
 
         $mailjet->post(Resources::$ContactslistManagecontact,
             ['id' => 'list01', 'body' => $contact->format()]
         )->shouldBeCalled()->willReturn($response);
 
-        $this->unsubscribe('list01', $contact)->shouldReturn('successdata!');
+        $this->unsubscribe('list01', $contact)->shouldReturn(['successdata!']);
     }
 
     public function it_delete(MailjetClient $mailjet, \Mailjet\Response $response)
@@ -107,13 +107,13 @@ class ContactsListManagerSpec extends ObjectBehavior
         $contact->setAction(Contact::ACTION_REMOVE);
 
         $response->success()->shouldBeCalled()->willReturn(true);
-        $response->getData()->shouldBeCalled()->willReturn('successdata!');
+        $response->getData()->shouldBeCalled()->willReturn(['successdata!']);
 
         $mailjet->post(Resources::$ContactslistManagecontact,
             ['id' => 'list01', 'body' => $contact->format()]
         )->shouldBeCalled()->willReturn($response);
 
-        $this->delete('list01', $contact)->shouldReturn('successdata!');
+        $this->delete('list01', $contact)->shouldReturn(['successdata!']);
     }
 
     public function it_change_email(MailjetClient $mailjet, \Mailjet\Response $response, \Mailjet\Response $responseFinal)
@@ -136,12 +136,12 @@ class ContactsListManagerSpec extends ObjectBehavior
         $oldContact->setAction(Contact::ACTION_REMOVE);
 
         $responseFinal->success()->shouldBeCalled()->willReturn(true);
-        $responseFinal->getData()->shouldBeCalled()->willReturn('success');
+        $responseFinal->getData()->shouldBeCalled()->willReturn(['success']);
 
         $mailjet->post(Resources::$ContactslistManagecontact, ['id' => 'list01', 'body' => $oldContact->format()])
             ->shouldBeCalled()
             ->willReturn($responseFinal);
 
-        $this->changeEmail('list01', $contact, 'oldemail@foo.bar')->shouldReturn('success');
+        $this->changeEmail('list01', $contact, 'oldemail@foo.bar')->shouldReturn(['success']);
     }
 }
