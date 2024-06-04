@@ -23,22 +23,6 @@ services:
             - '%mailjet.transactionnal.call%'
             - '%mailjet.transactionnal.options%'
 
-    swiftmailer.transport.eventdispatcher.mailjet:
-        class: Swift_Events_SimpleEventDispatcher
-
-    swiftmailer.mailer.transport.mailjet:
-        class: Mailjet\MailjetSwiftMailer\SwiftMailer\MailjetTransport
-        arguments:
-            - '@swiftmailer.transport.eventdispatcher.mailjet'
-            - '%mailjet.api_key%'
-            - '%mailjet.secret_key%'
-            - '%mailjet.transactionnal.call%'
-            - '%mailjet.transactionnal.options%'
-        calls:
-            - method: setExternalMailjetClient
-              arguments:
-                  - '@mailjet.transactionnal.client'
-
     mailjet.service.contacts_list_synchronizer:
         class: '%mailjet.contacts_list_synchronizer.class%'
         arguments:
@@ -104,3 +88,22 @@ services:
             - '%mailjet.event_endpoint_token%'
         calls:
             - [ setContainer, [ '@service_container' ] ]
+
+    # Commands
+    Mailjet\MailjetBundle\Command\EventCommand:
+        arguments:
+            - '@mailjet.service.event_callback_manager'
+            - '@router'
+            - '%mailjet.event_endpoint_route%'
+            - '%mailjet.event_endpoint_token%'
+
+    Mailjet\MailjetBundle\Command\SyncContactMetadataCommand:
+        arguments:
+            - '%mailjet.contact_metadata%'
+            - '@mailjet.service.contact_metadata_manager'
+
+    Mailjet\MailjetBundle\Command\SyncUserCommand:
+        arguments:
+            - '%mailjet.lists%'
+            - '@mailjet.service.contacts_list_synchronizer'
+            - '@service_container'

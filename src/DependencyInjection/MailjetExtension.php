@@ -47,9 +47,6 @@ class MailjetExtension extends Extension
         # Contact Properties config
         $container->setParameter('mailjet.contact_metadata', $config['contact_metadata']);
 
-        //set some alias
-        $container->setAlias('mailjet', 'swiftmailer.mailer.transport.mailjet');
-
         $loader = new Loader\YamlFileLoader($container, new FileLocator(__DIR__ . '/../Resources/config'));
         $loader->load('services.yml');
     }
