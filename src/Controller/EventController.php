@@ -2,18 +2,14 @@
 
 namespace Mailjet\MailjetBundle\Controller;
 
-use Symfony\Component\Routing\Annotation\Route;
-
-use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
-use Symfony\Component\HttpFoundation\Request;
-use Symfony\Component\HttpFoundation\JsonResponse;
-use Symfony\Component\HttpKernel\Exception\BadRequestHttpException;
-use Symfony\Component\EventDispatcher\EventDispatcherInterface;
-
 use Mailjet\MailjetBundle\Event\CallbackEvent;
+use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
+use Symfony\Component\EventDispatcher\EventDispatcherInterface;
+use Symfony\Component\HttpFoundation\JsonResponse;
+use Symfony\Component\HttpFoundation\Request;
+use Symfony\Component\HttpKernel\Exception\BadRequestHttpException;
 
 /**
- * @Route("/mailjet-event")
  * Best practice
  * We advise you to follow some basic guidelines for implementation and usage.
  *
@@ -37,8 +33,8 @@ class EventController extends AbstractController
      * Endpoint for the mailjet events (webhooks)
      * https://dev.mailjet.com/guides/#events
      * https://live-event-dashboard-demo.mailjet.com/
-     * @Route("/endpoint/{token}", name="mailjet_event_endpoint", methods={"POST"})
      */
+    #[\Symfony\Component\Routing\Annotation\Route('/mailjet-event/endpoint/{token}', name: 'mailjet_event_endpoint', methods: ['POST'])]
     public function indexAction(Request $request, $token)
     {
         // Token validation
