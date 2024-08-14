@@ -41,7 +41,7 @@ class MailjetDataCollector extends DataCollector
      * @param Response   $response  A Response instance
      * @param \Exception $exception An Exception instance
      */
-    public function collect(Request $request, Response $response, \Throwable $exception = null)
+    public function collect(Request $request, Response $response, \Throwable $exception = null): void
     {
 
         $this->data = $this->client->getCalls();
@@ -53,7 +53,7 @@ class MailjetDataCollector extends DataCollector
      *
      * @return string The collector name
      */
-    public function getName()
+    public function getName(): string
     {
         return 'mailjet';
     }
@@ -61,7 +61,7 @@ class MailjetDataCollector extends DataCollector
     /**
      * @return array
      */
-    public function getData()
+    public function getData(): array
     {
         return $this->data;
     }
@@ -71,7 +71,7 @@ class MailjetDataCollector extends DataCollector
      * @method getCallCount
      * @return int
      */
-    public function getCallCount()
+    public function getCallCount(): int
     {
         return count($this->data);
     }
@@ -79,7 +79,7 @@ class MailjetDataCollector extends DataCollector
 	/**
 	 * Resets this data collector to its initial state.
 	 */
-	public function reset()
+	public function reset(): void
 	{
 		$this->data = array();
 	}
