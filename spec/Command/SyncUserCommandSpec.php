@@ -13,7 +13,7 @@ class SyncUserCommandSpec extends ObjectBehavior
         ContactsListSynchronizer $synchronizer,
         Container $serviceContainer,
     ) {
-        $this->beConstructedWith([], $synchronizer, $serviceContainer);
+        $this->beConstructedWith($synchronizer, $serviceContainer, []);
 
         $this->shouldHaveType('Mailjet\MailjetBundle\Command\SyncUserCommand');
     }

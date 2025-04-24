@@ -13,27 +13,15 @@ use Symfony\Component\DependencyInjection\Container;
 use Symfony\Component\DependencyInjection\Exception\ServiceNotFoundException;
 
 /**
- * Class SyncUserCommand
  * Sync users in a mailjet contact list
- *
  */
 class SyncUserCommand extends Command
 {
-    private array $lists = [];
-
-    private ContactsListSynchronizer $synchronizer;
-
-    private Container $serviceContainer;
-
     public function __construct(
-        array $lists,
-        ContactsListSynchronizer $synchronizer,
-        Container $serviceContainer,
+        private ContactsListSynchronizer $synchronizer,
+        private Container $serviceContainer,
+        private array $lists = [],
     ) {
-        $this->lists = $lists;
-        $this->synchronizer = $synchronizer;
-        $this->serviceContainer = $serviceContainer;
-
         parent::__construct();
     }
 
@@ -127,7 +115,7 @@ class SyncUserCommand extends Command
      *
      * @return array
      */
-    private function refreshBatchesResult($listId, $batchesResult, &$batchesError)
+    private function refreshBatchesResult(string $listId, array $batchesResult, array &$batchesError): array
     {
         $refreshedBatchsResults = [];
         foreach ($batchesResult as $key => $batch) {
@@ -135,9 +123,9 @@ class SyncUserCommand extends Command
             $batch = $this->synchronizer->getJob($listId, $jobId);
             // We need to array merge because Mailjet API doesn't send jobid in response.
             if ($batch[0]['Status'] == 'Error') {
-                array_push($batchesError, array_merge(['JobID' => $jobId], $batch[0]));
+                $batchesError[] = array_merge(['JobID' => $jobId], $batch[0]);
             } else {
-                array_push($refreshedBatchsResults, array_merge(['JobID' => $jobId], $batch[0]));
+                $refreshedBatchsResults[] = array_merge(['JobID' => $jobId], $batch[0]);
             }
         }
 
@@ -151,7 +139,7 @@ class SyncUserCommand extends Command
      *
      * @return bool
      */
-    private function batchesFinished($batchesResult)
+    private function batchesFinished(array $batchesResult): bool
     {
         $allfinished = true;
         foreach ($batchesResult as $key => $batch) {
@@ -170,7 +158,7 @@ class SyncUserCommand extends Command
      *
      * @return string
      */
-    private function displayBatchInfo($batch)
+    private function displayBatchInfo(array $batch): string
     {
         if ($batch['Status'] == 'Completed') {
             return sprintf('batch %s is Completed, %d operations %s', $batch['JobID'], $batch['Count'], $batch['Error']);
@@ -186,12 +174,12 @@ class SyncUserCommand extends Command
      *
      * @return array
      */
-    private function displayBatchesErrorFile($batchesError)
+    private function displayBatchesErrorFile(array $batchesError): array
     {
         $output = [];
         foreach ($batchesError as $key => $batch) {
             $errors = $this->synchronizer->getJobJsonError($batch['JobID']);
-            array_push($output, '<error><pre>' . print_r($errors) . '</pre></error>');
+            $output[] = '<error><pre>' . print_r($errors) . '</pre></error>';
         }
 
         return $output;

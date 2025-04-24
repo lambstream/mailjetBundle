@@ -2,7 +2,7 @@
 
 namespace Mailjet\MailjetBundle\Exception;
 
-use \Mailjet\Response;
+use Mailjet\Response;
 
 /**
  * Handle Mailjet API errors
@@ -10,61 +10,59 @@ use \Mailjet\Response;
 class MailjetException extends \Exception
 {
     /**
-     * @var int
+     * @var string
      */
-    private $statusCode;
+    private string $errorInfo = '';
 
     /**
      * @var string
      */
-    private $errorInfo;
+    private string $errorMessage = '';
 
     /**
      * @var string
      */
-    private $errorMessage;
-
-    /**
-     * @var string
-     */
-    private $errorIdentifier;
+    private string $errorIdentifier = '';
 
     /**
      * https://dev.mailjet.com/guides/#about-the-mailjet-restful-api
-     * @param Response  $response
+     * @param Response   $response
      * @param \Throwable $previous
      */
-    public function __construct($statusCode=0, $message=null, Response $response=null, \Throwable $previous=null)
-    {
+    public function __construct(
+        private int $statusCode = 0,
+        protected $message = null,
+        protected ?Response $response = null,
+        protected ?\Throwable $previous = null
+    ) {
         // if you pass a Mailjet\Response
-        if($response)
-        {
-            $statusCode = $response->getStatus();
+        if ($response) {
+            $this->statusCode = $response->getStatus();
             $message = sprintf('%s: %s', $message, $response->getReasonPhrase());
             $this->setErrorFromResponse($response);
         }
 
-        parent::__construct($message, $statusCode, $previous);
-
+        parent::__construct($message, $this->statusCode, $previous);
     }
 
     /**
      * Configure MailjetException from Mailjet\Response
      * @method setErrorFromResponse
-     * @param  Response $response
+     *
+     * @param Response $response
      */
     private function setErrorFromResponse(Response $response)
     {
         $this->statusCode = $response->getStatus();
 
         $body = $response->getBody();
-        if(isset($body['ErrorInfo'])){
+        if (isset($body['ErrorInfo'])) {
             $this->errorInfo = $body['ErrorInfo'];
         }
-        if(isset($body['ErrorMessage'])){
+        if (isset($body['ErrorMessage'])) {
             $this->errorMessage = $body['ErrorMessage'];
         }
-        if(isset($body['ErrorIdentifier'])){
+        if (isset($body['ErrorIdentifier'])) {
             $this->errorIdentifier = $body['ErrorIdentifier'];
         }
     }
@@ -80,7 +78,7 @@ class MailjetException extends \Exception
     /**
      * @return string
      */
-    public function getErrorMessage()
+    public function getErrorMessage(): string
     {
         return $this->errorMessage;
     }
@@ -88,7 +86,7 @@ class MailjetException extends \Exception
     /**
      * @return string
      */
-    public function getErrorIdentifier()
+    public function getErrorIdentifier(): string
     {
         return $this->errorIdentifier;
     }

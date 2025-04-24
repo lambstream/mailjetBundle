@@ -10,7 +10,7 @@ class SyncContactMetadataCommandSpec extends ObjectBehavior
 {
     function it_is_initializable(ContactMetadataManager $contactMetadataManager)
     {
-        $this->beConstructedWith([], $contactMetadataManager);
+        $this->beConstructedWith($contactMetadataManager, []);
 
         $this->shouldHaveType('Mailjet\MailjetBundle\Command\SyncContactMetadataCommand');
     }

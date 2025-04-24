@@ -2,52 +2,48 @@
 
 namespace Mailjet\MailjetBundle\Manager;
 
-use \Mailjet\Resources;
-use \Mailjet\Response;
-
 use Mailjet\MailjetBundle\Client\MailjetClient;
 use Mailjet\MailjetBundle\Exception\MailjetException;
 use Mailjet\MailjetBundle\Model\Contact;
 use Mailjet\MailjetBundle\Model\ContactsList;
+use Mailjet\Resources;
+use Mailjet\Response;
 
 /**
-* https://dev.mailjet.com/email-api/v3/contactslist-managecontact/
-* manage ContactsList (create, update, delete, ...)
-*
-*/
+ * https://dev.mailjet.com/email-api/v3/contactslist-managecontact/
+ * manage ContactsList (create, update, delete, ...)
+ *
+ */
 class ContactsListManager
 {
     /**
      * @var int
      */
-    const CONTACT_BATCH_SIZE = 1000;
+    public const CONTACT_BATCH_SIZE = 1000;
 
-    /**
-     * Mailjet client
-     * @var MailjetClient
-     */
-    protected $mailjet;
-
-    /**
-     * @param MailjetClient $mailjet
-     */
-    public function __construct(MailjetClient $mailjet)
-    {
-        $this->mailjet = $mailjet;
+    public function __construct(
+        /**
+         * Mailjet client
+         */
+        protected MailjetClient $mailjet,
+    ) {
     }
 
     /**
      * create a new fresh Contact to listId
-     * @param string $listId
+     *
+     * @param string  $listId
      * @param Contact $contact
-     * @param string $action
+     * @param string  $action
+     *
+     * @throws MailjetException
      */
-    public function create($listId, Contact $contact, $action=Contact::ACTION_ADDFORCE)
+    public function create(string $listId, Contact $contact, $action = Contact::ACTION_ADDFORCE)
     {
         $contact->setAction($action);
         $response = $this->_exec($listId, $contact);
         if (!$response->success()) {
-            $this->throwError("ContactsListManager:create() failed", $response);
+            $this->throwError('ContactsListManager:create() failed', $response);
         }
 
         return $response->getData();
@@ -55,16 +51,19 @@ class ContactsListManager
 
     /**
      * update a Contact to listId
-     * @param string $listId
+     *
+     * @param string  $listId
      * @param Contact $contact
-     * @param string $action
+     * @param string  $action
+     *
+     * @throws MailjetException
      */
-    public function update($listId, Contact $contact, $action=Contact::ACTION_ADDNOFORCE)
+    public function update(string $listId, Contact $contact, $action = Contact::ACTION_ADDNOFORCE)
     {
         $contact->setAction($action);
         $response = $this->_exec($listId, $contact);
         if (!$response->success()) {
-            $this->throwError("ContactsListManager:update() failed", $response);
+            $this->throwError('ContactsListManager:update() failed', $response);
         }
 
         return $response->getData();
@@ -72,11 +71,14 @@ class ContactsListManager
 
     /**
      * re/subscribe a Contact to listId
-     * @param string $listId
+     *
+     * @param string  $listId
      * @param Contact $contact
-     * @param bool $force
+     * @param bool    $force
+     *
+     * @throws MailjetException
      */
-    public function subscribe($listId, Contact $contact, $force = true)
+    public function subscribe(string $listId, Contact $contact, $force = true)
     {
         if ($force) {
             $contact->setAction(Contact::ACTION_ADDFORCE);
@@ -85,7 +87,7 @@ class ContactsListManager
         }
         $response = $this->_exec($listId, $contact);
         if (!$response->success()) {
-            $this->throwError("ContactsListManager:sub() failed", $response);
+            $this->throwError('ContactsListManager:sub() failed', $response);
         }
 
         return $response->getData();
@@ -93,15 +95,18 @@ class ContactsListManager
 
     /**
      * unsubscribe a Contact from listId
-     * @param string $listId
+     *
+     * @param string  $listId
      * @param Contact $contact
+     *
+     * @throws MailjetException
      */
-    public function unsubscribe($listId, Contact $contact)
+    public function unsubscribe(string $listId, Contact $contact)
     {
         $contact->setAction(Contact::ACTION_UNSUB);
         $response = $this->_exec($listId, $contact);
         if (!$response->success()) {
-            $this->throwError("ContactsListManager:unsub() failed", $response);
+            $this->throwError('ContactsListManager:unsub() failed', $response);
         }
 
         return $response->getData();
@@ -109,15 +114,18 @@ class ContactsListManager
 
     /**
      * Delete a Contact from listId
-     * @param string $listId
+     *
+     * @param string  $listId
      * @param Contact $contact
+     *
+     * @throws MailjetException
      */
-    public function delete($listId, Contact $contact)
+    public function delete(string $listId, Contact $contact)
     {
         $contact->setAction(Contact::ACTION_REMOVE);
         $response = $this->_exec($listId, $contact);
         if (!$response->success()) {
-            $this->throwError("ContactsListManager:delete() failed", $response);
+            $this->throwError('ContactsListManager:delete() failed', $response);
         }
 
         return $response->getData();
@@ -125,16 +133,19 @@ class ContactsListManager
 
     /**
      * Change email a Contact
-     * @param string $listId
+     *
+     * @param string  $listId
      * @param Contact $contact
-     * @param string $oldEmail
+     * @param string  $oldEmail
+     *
+     * @throws MailjetException
      */
-    public function changeEmail($listId, Contact $contact, $oldEmail)
+    public function changeEmail(string $listId, Contact $contact, $oldEmail)
     {
         // get old contact properties
         $response = $this->mailjet->get(Resources::$Contactdata, ['id' => $oldEmail]);
         if (!$response->success()) {
-            $this->throwError("ContactsListManager:changeEmail() failed", $response);
+            $this->throwError('ContactsListManager:changeEmail() failed', $response);
         }
 
         // copy contact properties
@@ -147,7 +158,7 @@ class ContactsListManager
         $contact->setAction(Contact::ACTION_ADDFORCE);
         $response = $this->_exec($listId, $contact);
         if (!$response->success()) {
-            $this->throwError("ContactsListManager:changeEmail() failed", $response);
+            $this->throwError('ContactsListManager:changeEmail() failed', $response);
         }
 
         // remove old
@@ -155,7 +166,7 @@ class ContactsListManager
         $oldContact->setAction(Contact::ACTION_REMOVE);
         $response = $this->_exec($listId, $oldContact);
         if (!$response->success()) {
-            $this->throwError("ContactsListManager:changeEmail() failed", $response);
+            $this->throwError('ContactsListManager:changeEmail() failed', $response);
         }
 
         return $response->getData();
@@ -164,8 +175,11 @@ class ContactsListManager
     /**
      * Manage Many Contacts to List
      * https://dev.mailjet.com/email-api/v3/contactslist-managemanycontacts/
-     * @param  ContactsList $contactsList
+     *
+     * @param ContactsList $contactsList
+     *
      * @return array
+     * @throws MailjetException
      */
     public function manageManyContactsList(ContactsList $contactsList)
     {
@@ -175,45 +189,52 @@ class ContactsListManager
         foreach ($contactChunks as $contactChunk) {
             // create a sub-contactList to divide large request
             $subContactsList = new ContactsList($contactsList->getListId(), $contactsList->getAction(), $contactChunk);
-            $currentBatch = $this->mailjet->post(Resources::$ContactslistManagemanycontacts,
+            $currentBatch = $this->mailjet->post(
+                Resources::$ContactslistManagemanycontacts,
                 ['id' => $subContactsList->getListId(), 'body' => $subContactsList->format()]
             );
             if ($currentBatch->success()) {
-                array_push($batchResults, $currentBatch->getData()[0]);
+                $batchResults[] = $currentBatch->getData()[0];
             } else {
-                $this->throwError("ContactsListManager:manageManyContactsList() failed", $currentBatch);
+                $this->throwError('ContactsListManager:manageManyContactsList() failed', $currentBatch);
             }
         }
+
         return $batchResults;
     }
 
     /**
-    * An action for adding a contact to a contact list. Only POST is supported.
-    * The API will internally create the new contact if it does not exist,
-    * add or update the name and properties.
-    * The properties have to be defined before they can be used.
-    * The API then adds the contact to the contact list with active=true and
-    * unsub=specified value if it is not already in the list,
-    * or updates the entry with these values. On success,
-    * the API returns a packet with the same format but with all properties available
-    * for that contact.
-    * @param string $listId
-    * @param Contact $contact
-    */
-    private function _exec($listId, Contact $contact)
+     * An action for adding a contact to a contact list. Only POST is supported.
+     * The API will internally create the new contact if it does not exist,
+     * add or update the name and properties.
+     * The properties have to be defined before they can be used.
+     * The API then adds the contact to the contact list with active=true and
+     * unsub=specified value if it is not already in the list,
+     * or updates the entry with these values. On success,
+     * the API returns a packet with the same format but with all properties available
+     * for that contact.
+     *
+     * @param string  $listId
+     * @param Contact $contact
+     */
+    private function _exec(string $listId, Contact $contact)
     {
-        return $this->mailjet->post(Resources::$ContactslistManagecontact,
+        return $this->mailjet->post(
+            Resources::$ContactslistManagecontact,
             ['id' => $listId, 'body' => $contact->format()]
         );
     }
 
     /**
      * Helper to throw error
-     * @param  string $title
-     * @param  Response $response
+     *
+     * @param string   $title
+     * @param Response $response
+     *
+     * @throws MailjetException
      */
-     private function throwError($title, Response $response)
-     {
-         throw new MailjetException(0, $title, $response);
-     }
+    private function throwError(string $title, Response $response)
+    {
+        throw new MailjetException(0, $title, $response);
+    }
 }

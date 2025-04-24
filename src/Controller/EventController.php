@@ -2,6 +2,7 @@
 
 namespace Mailjet\MailjetBundle\Controller;
 
+use JsonException;
 use Mailjet\MailjetBundle\Event\CallbackEvent;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\EventDispatcher\EventDispatcherInterface;
@@ -13,20 +14,17 @@ use Symfony\Component\HttpKernel\Exception\BadRequestHttpException;
  * Best practice
  * We advise you to follow some basic guidelines for implementation and usage.
  *
- * Process the payload received asynchronously : as much as possible, the webhook script should rely on an asynchronous consumer process that will use the data saved by your webhook. You should keep out of your webhook logic all cross matches of the delivered events with other ressources of our API or your internal database. This step will allow your webhook to answer in a timely manner to our calls and avoid it to timeout and being retried by our server.
- * Check regularly your server logs for any errors : all non 200 errors would be retried and could cause an increasing volume of calls to your system.
- * Leverage the transactional message tagging to simplify reconciliation between the events and your own system.
+ * Process the payload received asynchronously : as much as possible, the webhook script should rely on an asynchronous consumer process that will use the data saved by your webhook. You should keep out of your webhook logic all cross
+ * matches of the delivered events with other ressources of our API or your internal database. This step will allow your webhook to answer in a timely manner to our calls and avoid it to timeout and being retried by our server. Check
+ * regularly your server logs for any errors : all non 200 errors would be retried and could cause an increasing volume of calls to your system. Leverage the transactional message tagging to simplify reconciliation between the events and
+ * your own system.
  */
 class EventController extends AbstractController
 {
-    protected EventDispatcherInterface $dispatcher;
-
-    private string $eventEndpointToken;
-
-    public function __construct(EventDispatcherInterface $dispatcher, string $eventEndpointToken)
-    {
-        $this->dispatcher = $dispatcher;
-        $this->eventEndpointToken = $eventEndpointToken;
+    public function __construct(
+        protected EventDispatcherInterface $dispatcher,
+        private string $eventEndpointToken,
+    ) {
     }
 
     /**
@@ -44,12 +42,12 @@ class EventController extends AbstractController
 
         $data = $this->extractData($request);
 
-        if(!$data){
+        if (!$data) {
             throw new BadRequestHttpException('Malformatted or missing data');
         }
 
-        if(isset($data['event'])){
-            $data = array($data);
+        if (isset($data['event'])) {
+            $data = [$data];
         }
         /*
             Please note that the event types in the collection can be mixed.
@@ -59,71 +57,51 @@ class EventController extends AbstractController
         $dispatcher = $this->getDispatcher();
 
         foreach ($data as $key => $callbackData) {
-            $type = $callbackData['event'];
-            switch ($type) {
-                case 'sent':
-                    $dispatcher->dispatch(new CallbackEvent($callbackData), CallbackEvent::EVENT_SENT);
-                    break;
-                case 'open':
-                    $dispatcher->dispatch(new CallbackEvent($callbackData), CallbackEvent::EVENT_OPEN);
-                    break;
-                case 'click':
-                    $dispatcher->dispatch(new CallbackEvent($callbackData), CallbackEvent::EVENT_CLICK);
-                    break;
-                case 'bounce':
-                    $dispatcher->dispatch(new CallbackEvent($callbackData), CallbackEvent::EVENT_BOUNCE);
-                    break;
-                case 'spam':
-                    $dispatcher->dispatch(new CallbackEvent($callbackData), CallbackEvent::EVENT_SPAM);
-                    break;
-                case 'blocked':
-                    $dispatcher->dispatch(new CallbackEvent($callbackData), CallbackEvent::EVENT_BLOCKED);
-                    break;
-                case 'unsub':
-                    $dispatcher->dispatch(new CallbackEvent($callbackData), CallbackEvent::EVENT_UNSUB);
-                    break;
-                default:
-                    throw new BadRequestHttpException('Type mismatch');
-                    break;
-            }
+            match ($callbackData['event']) {
+                'sent' => $dispatcher->dispatch(new CallbackEvent($callbackData), CallbackEvent::EVENT_SENT),
+                'open' => $dispatcher->dispatch(new CallbackEvent($callbackData), CallbackEvent::EVENT_OPEN),
+                'click' => $dispatcher->dispatch(new CallbackEvent($callbackData), CallbackEvent::EVENT_CLICK),
+                'bounce' => $dispatcher->dispatch(new CallbackEvent($callbackData), CallbackEvent::EVENT_BOUNCE),
+                'spam' => $dispatcher->dispatch(new CallbackEvent($callbackData), CallbackEvent::EVENT_SPAM),
+                'blocked' => $dispatcher->dispatch(new CallbackEvent($callbackData), CallbackEvent::EVENT_BLOCKED),
+                'unsub' => $dispatcher->dispatch(new CallbackEvent($callbackData), CallbackEvent::EVENT_UNSUB),
+                default => throw new BadRequestHttpException('Type mismatch'),
+            };
         }
 
-        return $this->prepareResponse(200);
+        return new JsonResponse(['success' => true]);
     }
 
     /**
      * Override this to use another event dispatcher
+     *
      * @return EventDispatcherInterface
      */
-    public function getDispatcher()
+    public function getDispatcher(): EventDispatcherInterface
     {
         // NOTE: use a better dispatcher such as rabbitMQ if you have a huge amount of events
         return $this->dispatcher;
     }
 
     /**
-
-     * @param  Request $request
+     * @param Request $request
+     *
      * @return array
      */
-    private function extractData(Request $request)
-    {
-        return json_decode($request->getContent(), true);
-    }
-
-    /**
-     * @param  int $status
-     * @return JsonResponse
-     */
-    private function prepareResponse($status)
-    {
-        return new JsonResponse(array('success' => true), $status);
+    private function extractData(
+        Request $request,
+    ): array {
+        try {
+            return json_decode($request->getContent(), true, flags: JSON_THROW_ON_ERROR);
+        } catch (JsonException $e) {
+            return [];
+        }
     }
 
     /**
      * @return string
      */
-    private function getToken()
+    private function getToken(): string
     {
         return $this->eventEndpointToken;
     }

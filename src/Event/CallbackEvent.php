@@ -1,4 +1,5 @@
 <?php
+
 namespace Mailjet\MailjetBundle\Event;
 
 use Symfony\Contracts\EventDispatcher\Event;
@@ -8,41 +9,39 @@ use Symfony\Contracts\EventDispatcher\Event;
  */
 class CallbackEvent extends Event
 {
-
-    const EVENT_SENT = 'mailjet.event.sent';
-    const EVENT_OPEN = 'mailjet.event.open';
-    const EVENT_CLICK = 'mailjet.event.click';
-    const EVENT_BOUNCE = 'mailjet.event.bounce';
-    const EVENT_SPAM = 'mailjet.event.spam';
-    const EVENT_BLOCKED = 'mailjet.event.blocked';
-    const EVENT_UNSUB = 'mailjet.event.unsub';
-    const EVENT_TYPOFIX = 'mailjet.event.typofix';
-    const EVENT_PARSEAPI = 'mailjet.event.parseapi';
-    const EVENT_NEWSENDER = 'mailjet.event.newsender';
-    const EVENT_NEWSENDERAUTOVALID = 'mailjet.event.newsenderautovalid';
-
-    /**
-     * array of data payload from Mailjet Event
-     * @var array
-     */
-    protected $data;
+    public const EVENT_SENT = 'mailjet.event.sent';
+    public const EVENT_OPEN = 'mailjet.event.open';
+    public const EVENT_CLICK = 'mailjet.event.click';
+    public const EVENT_BOUNCE = 'mailjet.event.bounce';
+    public const EVENT_SPAM = 'mailjet.event.spam';
+    public const EVENT_BLOCKED = 'mailjet.event.blocked';
+    public const EVENT_UNSUB = 'mailjet.event.unsub';
+    public const EVENT_TYPOFIX = 'mailjet.event.typofix';
+    public const EVENT_PARSEAPI = 'mailjet.event.parseapi';
+    public const EVENT_NEWSENDER = 'mailjet.event.newsender';
+    public const EVENT_NEWSENDERAUTOVALID = 'mailjet.event.newsenderautovalid';
 
     /**
-     * @param  array $data
+     * @param array $data
      */
-    public function __construct(array $data)
-    {
-        $this->data = $data;
+    public function __construct(
+        /**
+         * array of data payload from Mailjet Event
+         *
+         * @var array
+         */
+        protected array $data,
+    ) {
     }
 
     /**
      * Get data payload from Mailjet Event
      * @method getData
+     *
      * @return array
      */
-    public function getData()
+    public function getData(): array
     {
         return $this->data;
     }
-
 }

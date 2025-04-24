@@ -9,23 +9,14 @@ use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Output\OutputInterface;
 
 /**
- * Class SyncUserCommand
  * Sync users in a mailjet contact list
- *
  */
 class SyncContactMetadataCommand extends Command
 {
-    private array $contactMetadata = [];
-
-    private ContactMetadataManager $contactMetadataManager;
-
     public function __construct(
-        array $contactMetadata,
-        ContactMetadataManager $contactMetadataManager,
+        private ContactMetadataManager $contactMetadataManager,
+        private array $contactMetadata = [],
     ) {
-        $this->contactMetadata = $contactMetadata;
-        $this->contactMetadataManager = $contactMetadataManager;
-
         parent::__construct();
     }
 

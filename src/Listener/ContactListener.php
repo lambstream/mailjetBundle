@@ -2,22 +2,16 @@
 
 namespace Mailjet\MailjetBundle\Listener;
 
-use Mailjet\MailjetBundle\Manager\ContactsListManager;
 use Mailjet\MailjetBundle\Event\ContactEvent;
+use Mailjet\MailjetBundle\Manager\ContactsListManager;
 
 class ContactListener
 {
-    /**
-     * @var ContactsListManager
-     */
-    protected $contactManager;
-
-    public function __construct(ContactsListManager $contactManager)
+    public function __construct(protected ContactsListManager $contactManager)
     {
-        $this->contactManager = $contactManager;
     }
 
-    public function onSubscribe(ContactEvent $event)
+    public function onSubscribe(ContactEvent $event): void
     {
         $this->contactManager->subscribe(
             $event->getListId(),
@@ -25,7 +19,7 @@ class ContactListener
         );
     }
 
-    public function onUnsubscribe(ContactEvent $event)
+    public function onUnsubscribe(ContactEvent $event): void
     {
         $this->contactManager->unsubscribe(
             $event->getListId(),
@@ -33,7 +27,7 @@ class ContactListener
         );
     }
 
-    public function onUpdate(ContactEvent $event)
+    public function onUpdate(ContactEvent $event): void
     {
         $this->contactManager->update(
             $event->getListId(),
@@ -41,7 +35,7 @@ class ContactListener
         );
     }
 
-    public function onDelete(ContactEvent $event)
+    public function onDelete(ContactEvent $event): void
     {
         $this->contactManager->delete(
             $event->getListId(),
@@ -50,7 +44,7 @@ class ContactListener
     }
 
     // @TODO How to change user email? (workaround: remove old, add new...)
-    public function onChangeEmail(ContactEvent $event)
+    public function onChangeEmail(ContactEvent $event): void
     {
         $this->contactManager->changeEmail(
             $event->getListId(),

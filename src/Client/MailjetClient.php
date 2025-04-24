@@ -1,4 +1,5 @@
 <?php
+
 namespace Mailjet\MailjetBundle\Client;
 
 use Mailjet\Client;
@@ -6,7 +7,7 @@ use Mailjet\Response;
 
 class MailjetClient extends Client
 {
-    protected $calls = [];
+    protected array $calls = [];
 
     /**
      * Trigger a POST request.
@@ -14,11 +15,12 @@ class MailjetClient extends Client
      * @param array $resource Mailjet Resource/Action pair
      * @param array $args Request arguments
      * @param array $options
+     *
      * @return Response
      */
-    public function post(array $resource, array $args = [], array $options = []): Response
+    public function post(array $resource, array $args = [], array $options = [], string $contentType = 'application/json'): Response
     {
-        $response = parent::post($resource, $args, $options);
+        $response = parent::post($resource, $args, $options, $contentType);
         $this->calls[] = [
             'method' => 'POST',
             'resource' => $resource,
@@ -27,6 +29,7 @@ class MailjetClient extends Client
             'success' => $response->success(),
             'response' => $response->getBody(),
         ];
+
         return $response;
     }
 
@@ -36,11 +39,12 @@ class MailjetClient extends Client
      * @param array $resource Mailjet Resource/Action pair
      * @param array $args Request arguments
      * @param array $options
+     *
      * @return Response
      */
-    public function get(array $resource, array $args = [], array $options = []): Response
+    public function get(array $resource, array $args = [], array $options = [], string $contentType = 'application/json'): Response
     {
-        $response = parent::get($resource, $args, $options);
+        $response = parent::get($resource, $args, $options, $contentType);
         $this->calls[] = [
             'method' => 'GET',
             'resource' => $resource,
@@ -49,6 +53,7 @@ class MailjetClient extends Client
             'success' => $response->success(),
             'response' => $response->getBody(),
         ];
+
         return $response;
     }
 
@@ -58,11 +63,12 @@ class MailjetClient extends Client
      * @param array $resource Mailjet Resource/Action pair
      * @param array $args Request arguments
      * @param array $options
+     *
      * @return Response
      */
-    public function put(array $resource, array $args = [], array $options = []): Response
+    public function put(array $resource, array $args = [], array $options = [], string $contentType = 'application/json'): Response
     {
-        $response = parent::put($resource, $args, $options);
+        $response = parent::put($resource, $args, $options, $contentType);
         $this->calls[] = [
             'method' => 'PUT',
             'resource' => $resource,
@@ -71,6 +77,7 @@ class MailjetClient extends Client
             'success' => $response->success(),
             'response' => $response->getBody(),
         ];
+
         return $response;
     }
 
@@ -80,11 +87,12 @@ class MailjetClient extends Client
      * @param array $resource Mailjet Resource/Action pair
      * @param array $args Request arguments
      * @param array $options
+     *
      * @return Response
      */
-    public function delete(array $resource, array $args = [], array $options = []): Response
+    public function delete(array $resource, array $args = [], array $options = [], string $contentType = 'application/json'): Response
     {
-        $response = parent::delete($resource, $args, $options);
+        $response = parent::delete($resource, $args, $options, $contentType);
         $this->calls[] = [
             'method' => 'DELETE',
             'resource' => $resource,
@@ -93,12 +101,11 @@ class MailjetClient extends Client
             'success' => $response->success(),
             'response' => $response->getBody(),
         ];
+
         return $response;
     }
-    /**
-     * @return array
-     */
-    public function getCalls()
+
+    public function getCalls(): array
     {
         return $this->calls;
     }

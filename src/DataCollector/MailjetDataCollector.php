@@ -7,45 +7,26 @@ use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\HttpKernel\DataCollector\DataCollector;
 
-/**
- * Class MailjetDataCollector
- */
 class MailjetDataCollector extends DataCollector
 {
-    /**
-     * Mailjet client for common API Call
-     * @var MailjetClient
-     */
-    protected $client;
-
-    /**
-     * Mailjet client for transactional email (swiftmailer)
-     * @var MailjetClient
-     */
-    protected $transactionalClient;
-
-    /**
-     * @param MailjetClient $client
-     * @param MailjetClient $transactionalClient
-     */
-    public function __construct(MailjetClient $client, MailjetClient $transactionalClient)
-    {
-        $this->client = $client;
-        $this->transactionalClient = $transactionalClient;
+    public function __construct(
+        /**
+         *  Mailjet client for common API Call
+         */
+        protected MailjetClient $client
+    ) {
     }
 
     /**
      * Collects data for the given Request and Response.
      *
-     * @param Request    $request   A Request instance
-     * @param Response   $response  A Response instance
+     * @param Request    $request A Request instance
+     * @param Response   $response A Response instance
      * @param \Exception $exception An Exception instance
      */
     public function collect(Request $request, Response $response, \Throwable $exception = null): void
     {
-
         $this->data = $this->client->getCalls();
-        $this->data = array_merge($this->data, $this->transactionalClient->getCalls());
     }
 
     /**
@@ -69,6 +50,7 @@ class MailjetDataCollector extends DataCollector
     /**
      * Return call number
      * @method getCallCount
+     *
      * @return int
      */
     public function getCallCount(): int
@@ -76,11 +58,11 @@ class MailjetDataCollector extends DataCollector
         return count($this->data);
     }
 
-	/**
-	 * Resets this data collector to its initial state.
-	 */
-	public function reset(): void
-	{
-		$this->data = array();
-	}
+    /**
+     * Resets this data collector to its initial state.
+     */
+    public function reset(): void
+    {
+        $this->data = array();
+    }
 }

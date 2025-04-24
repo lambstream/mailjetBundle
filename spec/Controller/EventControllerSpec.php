@@ -21,7 +21,6 @@ class EventControllerSpec extends ObjectBehavior
         $this->setContainer($container);
         $this->shouldHaveType('Mailjet\MailjetBundle\Controller\EventController');
         $this->shouldHaveType('Symfony\Bundle\FrameworkBundle\Controller\AbstractController');
-
     }
 
     function it_bad_request_exception_if_token_mismatch(ContainerInterface $container, EventDispatcherInterface $eventDispatcher)
@@ -113,7 +112,7 @@ class EventControllerSpec extends ObjectBehavior
         $request->initialize([], [], [], [], [], [], $data);
 
         $eventDispatcher->dispatch(new CallbackEvent(json_decode($data, true)[0]), CallbackEvent::EVENT_SENT)->shouldBeCalled();
-        $eventDispatcher->dispatch(new CallbackEvent(json_decode($data, true)[1]),CallbackEvent::EVENT_SENT)->shouldBeCalled();
+        $eventDispatcher->dispatch(new CallbackEvent(json_decode($data, true)[1]), CallbackEvent::EVENT_SENT)->shouldBeCalled();
 
         $this->indexAction($request, '12345678');
     }

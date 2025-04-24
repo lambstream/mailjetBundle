@@ -2,10 +2,10 @@
 
 namespace Mailjet\MailjetBundle\DependencyInjection;
 
-use Symfony\Component\DependencyInjection\ContainerBuilder;
 use Symfony\Component\Config\FileLocator;
-use Symfony\Component\HttpKernel\DependencyInjection\Extension;
+use Symfony\Component\DependencyInjection\ContainerBuilder;
 use Symfony\Component\DependencyInjection\Loader;
+use Symfony\Component\HttpKernel\DependencyInjection\Extension;
 
 class MailjetExtension extends Extension
 {
@@ -22,7 +22,7 @@ class MailjetExtension extends Extension
         if (isset($config['options'])) {
             $container->setParameter('mailjet.options', $config['options']);
         } else {
-            $container->setParameter('mailjet.options', array());
+            $container->setParameter('mailjet.options', []);
         }
 
         # Client transactionnal config
@@ -31,11 +31,11 @@ class MailjetExtension extends Extension
             if (isset($config['transactionnal']['options'])) {
                 $container->setParameter('mailjet.transactionnal.options', $config['transactionnal']['options']);
             } else {
-                $container->setParameter('mailjet.transactionnal.options', array());
+                $container->setParameter('mailjet.transactionnal.options', []);
             }
         } else {
             $container->setParameter('mailjet.transactionnal.call', true);
-            $container->setParameter('mailjet.transactionnal.options', array());
+            $container->setParameter('mailjet.transactionnal.options', []);
         }
 
         # Webhook config
@@ -51,7 +51,7 @@ class MailjetExtension extends Extension
         $loader->load('services.yml');
     }
 
-    public function getAlias() : string
+    public function getAlias(): string
     {
         return 'mailjet';
     }
