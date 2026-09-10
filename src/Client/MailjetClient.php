@@ -14,9 +14,10 @@ class MailjetClient extends Client
      * @param array $resource Mailjet Resource/Action pair
      * @param array $args Request arguments
      * @param array $options
+     * @param string $contentType
      * @return Response
      */
-    public function post(array $resource, array $args = [], array $options = []): Response
+    public function post(array $resource, array $args = [], array $options = [], string $contentType = 'application/json'): Response
     {
         $response = parent::post($resource, $args, $options);
         $this->calls[] = [
