@@ -37,9 +37,10 @@ class MailjetClient extends Client
      * @param array $resource Mailjet Resource/Action pair
      * @param array $args Request arguments
      * @param array $options
+     * @param string $contentType
      * @return Response
      */
-    public function get(array $resource, array $args = [], array $options = []): Response
+    public function get(array $resource, array $args = [], array $options = [], string $contentType = 'application/json'): Response
     {
         $response = parent::get($resource, $args, $options);
         $this->calls[] = [
@@ -59,9 +60,10 @@ class MailjetClient extends Client
      * @param array $resource Mailjet Resource/Action pair
      * @param array $args Request arguments
      * @param array $options
+     * @param string $contentType
      * @return Response
      */
-    public function put(array $resource, array $args = [], array $options = []): Response
+    public function put(array $resource, array $args = [], array $options = [], string $contentType = 'application/json'): Response
     {
         $response = parent::put($resource, $args, $options);
         $this->calls[] = [
@@ -81,9 +83,10 @@ class MailjetClient extends Client
      * @param array $resource Mailjet Resource/Action pair
      * @param array $args Request arguments
      * @param array $options
+     * @param string $contentType
      * @return Response
      */
-    public function delete(array $resource, array $args = [], array $options = []): Response
+    public function delete(array $resource, array $args = [], array $options = [], string $contentType = 'application/json'): Response
     {
         $response = parent::delete($resource, $args, $options);
         $this->calls[] = [
