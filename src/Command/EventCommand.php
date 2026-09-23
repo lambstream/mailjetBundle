@@ -31,7 +31,7 @@ class EventCommand extends Command
      * @param InputInterface $input
      * @param OutputInterface $output
      */
-    protected function execute(InputInterface $input, OutputInterface $output)
+    protected function execute(InputInterface $input, OutputInterface $output): int
     {
         $domain = $input->getArgument('baseurl');
         $uri = $this->getRouter()->generate($this->getRouteName(), array(
@@ -64,6 +64,8 @@ class EventCommand extends Command
         }
 
         $output->writeln(sprintf('<info>%s callback url has been added to your Mailjet account!</info>', $url));
+
+        return Command::SUCCESS;
     }
 
     /**

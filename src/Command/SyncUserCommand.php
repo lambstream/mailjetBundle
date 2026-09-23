@@ -62,7 +62,7 @@ class SyncUserCommand extends Command
     /**
      * {@inheritDoc}
      */
-    protected function execute(InputInterface $input, OutputInterface $output)
+    protected function execute(InputInterface $input, OutputInterface $output): int
     {
         foreach ($this->lists as $listId => $listParameters) {
             $provider = $this->getProvider($listParameters['contact_provider']);
@@ -92,6 +92,8 @@ class SyncUserCommand extends Command
 
             $output->writeln(sprintf('<info>OK listId: %s, see logs in Mailjet List</info>', $listId));
         }
+
+        return Command::SUCCESS;
     }
 
     /**

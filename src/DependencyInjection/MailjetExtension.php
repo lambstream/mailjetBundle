@@ -25,19 +25,6 @@ class MailjetExtension extends Extension
             $container->setParameter('mailjet.options', array());
         }
 
-        # Client transactionnal config
-        if (isset($config['transactionnal'])) {
-            $container->setParameter('mailjet.transactionnal.call', $config['transactionnal']['call']);
-            if (isset($config['transactionnal']['options'])) {
-                $container->setParameter('mailjet.transactionnal.options', $config['transactionnal']['options']);
-            } else {
-                $container->setParameter('mailjet.transactionnal.options', array());
-            }
-        } else {
-            $container->setParameter('mailjet.transactionnal.call', true);
-            $container->setParameter('mailjet.transactionnal.options', array());
-        }
-
         # Webhook config
         $container->setParameter('mailjet.event_endpoint_route', $config['event_endpoint_route']);
         $container->setParameter('mailjet.event_endpoint_token', $config['event_endpoint_token']);
@@ -48,7 +35,7 @@ class MailjetExtension extends Extension
         $container->setParameter('mailjet.contact_metadata', $config['contact_metadata']);
 
         //set some alias
-        $container->setAlias('mailjet', 'swiftmailer.mailer.transport.mailjet');
+        $container->setAlias('mailjet', 'mailjet.client');
 
         $loader = new Loader\YamlFileLoader($container, new FileLocator(__DIR__ . '/../Resources/config'));
         $loader->load('services.yml');

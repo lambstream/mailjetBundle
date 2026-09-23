@@ -47,7 +47,7 @@ class SyncContactMetadataCommand extends Command
     /**
      * {@inheritDoc}
      */
-    protected function execute(InputInterface $input, OutputInterface $output)
+    protected function execute(InputInterface $input, OutputInterface $output): int
     {
         // @TODO create a ContactMetadataSynchronizer
         // @TODO update existing ContactMetadata (in order to not throw error...)
@@ -63,5 +63,7 @@ class SyncContactMetadataCommand extends Command
             }
 
         }
+
+        return Command::SUCCESS;
     }
 }

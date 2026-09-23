@@ -19,19 +19,11 @@ class MailjetDataCollector extends DataCollector
     protected $client;
 
     /**
-     * Mailjet client for transactional email (swiftmailer)
-     * @var MailjetClient
-     */
-    protected $transactionalClient;
-
-    /**
      * @param MailjetClient $client
-     * @param MailjetClient $transactionalClient
      */
-    public function __construct(MailjetClient $client, MailjetClient $transactionalClient)
+    public function __construct(MailjetClient $client)
     {
         $this->client = $client;
-        $this->transactionalClient = $transactionalClient;
     }
 
     /**
@@ -45,7 +37,6 @@ class MailjetDataCollector extends DataCollector
     {
 
         $this->data = $this->client->getCalls();
-        $this->data = array_merge($this->data, $this->transactionalClient->getCalls());
     }
 
     /**

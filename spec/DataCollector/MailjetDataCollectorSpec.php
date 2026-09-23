@@ -11,7 +11,7 @@ class MailjetDataCollectorSpec extends ObjectBehavior
 {
     public function let(MailjetClient $mailjet)
     {
-        $this->beConstructedWith($mailjet, $mailjet);
+        $this->beConstructedWith($mailjet);
     }
 
     function it_is_initializable()
