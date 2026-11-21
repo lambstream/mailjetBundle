@@ -28,7 +28,7 @@ class CampaignManager {
      * List campaigns resources available for this apikey
      * @return array
      */
-    public function getAllCampaigns(array $filters = null) {
+    public function getAllCampaigns(?array $filters = null) {
         $response = $this->mailjet->get(Resources::$Campaign, ['filters' => $filters]);
         if (!$response->success()) {
             $this->throwError("CampaignDraftManager:getAllCampaigns() failed", $response);

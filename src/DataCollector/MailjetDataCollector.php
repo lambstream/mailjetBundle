@@ -33,7 +33,7 @@ class MailjetDataCollector extends DataCollector
      * @param Response   $response  A Response instance
      * @param \Exception $exception An Exception instance
      */
-    public function collect(Request $request, Response $response, \Throwable $exception = null): void
+    public function collect(Request $request, Response $response, ?\Throwable $exception = null): void
     {
 
         $this->data = $this->client->getCalls();

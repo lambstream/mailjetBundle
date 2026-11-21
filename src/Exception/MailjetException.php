@@ -34,7 +34,7 @@ class MailjetException extends \Exception
      * @param Response  $response
      * @param \Throwable $previous
      */
-    public function __construct($statusCode=0, $message=null, Response $response=null, \Throwable $previous=null)
+    public function __construct($statusCode=0, $message=null, ?Response $response=null, ?\Throwable $previous=null)
     {
         // if you pass a Mailjet\Response
         if($response)
@@ -44,7 +44,7 @@ class MailjetException extends \Exception
             $this->setErrorFromResponse($response);
         }
 
-        parent::__construct($message, $statusCode, $previous);
+        parent::__construct($message ?? '', $statusCode, $previous);
 
     }
 

@@ -11,7 +11,7 @@ use Symfony\Component\Console\Output\OutputInterface;
 
 class EventCommand extends Command
 {
-    protected function configure()
+    protected function configure(): void
     {
         $this
             ->setName('mailjet:event-endpoint')

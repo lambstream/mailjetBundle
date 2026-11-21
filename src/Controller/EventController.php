@@ -8,6 +8,7 @@ use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpKernel\Exception\BadRequestHttpException;
+use Symfony\Component\Routing\Attribute\Route;
 
 /**
  * Best practice
@@ -34,7 +35,7 @@ class EventController extends AbstractController
      * https://dev.mailjet.com/guides/#events
      * https://live-event-dashboard-demo.mailjet.com/
      */
-    #[\Symfony\Component\Routing\Annotation\Route('/mailjet-event/endpoint/{token}', name: 'mailjet_event_endpoint', methods: ['POST'])]
+    #[Route('/mailjet-event/endpoint/{token}', name: 'mailjet_event_endpoint', methods: ['POST'])]
     public function indexAction(Request $request, $token)
     {
         // Token validation

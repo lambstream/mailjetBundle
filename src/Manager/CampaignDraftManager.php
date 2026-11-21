@@ -29,7 +29,7 @@ class CampaignDraftManager
      * List campaigndraft resources available for this apikey
      * @return array
      */
-    public function getAllCampaignDrafts(array $filters = null)
+    public function getAllCampaignDrafts(?array $filters = null)
     {
         $response = $this->mailjet->get(Resources::$Campaigndraft,
             ['filters' => $filters]);

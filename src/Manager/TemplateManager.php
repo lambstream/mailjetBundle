@@ -31,7 +31,7 @@ class TemplateManager
      * @param array optional $filters
      * @return templates
      */
-    public function getAll(array $filters = null)
+    public function getAll(?array $filters = null)
     {
         $response = $this->mailjet->get(Resources::$Template,
             ['filters' => $filters]);

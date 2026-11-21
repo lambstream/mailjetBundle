@@ -34,7 +34,7 @@ class SyncUserCommand extends Command
     /**
      * {@inheritDoc}
      */
-    protected function configure()
+    protected function configure(): void
     {
         $this
             ->setName('mailjet:user-sync')
@@ -51,7 +51,7 @@ class SyncUserCommand extends Command
     /**
     * {@inheritDoc}
     */
-    protected function initialize(InputInterface $input, OutputInterface $output)
+    protected function initialize(InputInterface $input, OutputInterface $output): void
     {
         $output->writeln(sprintf('<info>%s</info>', $this->getDescription()));
 
